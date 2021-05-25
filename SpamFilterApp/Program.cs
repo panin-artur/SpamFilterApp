@@ -69,7 +69,7 @@ namespace SpamFilterApp
             }
             oTestFile.Close();
 
-            Console.WriteLine("Вывести все спам-слова? Y or N");
+            Console.WriteLine("Вывести все спам-слова?");
             string TextRead = Console.ReadLine();
 
             if (TextRead == "да" || TextRead == "Да" || TextRead == "lf")
@@ -84,6 +84,8 @@ namespace SpamFilterApp
             else 
             {
                 Console.WriteLine("Ну ладно");
+                Console.ReadKey(true);
+                return;
             }
 
             if (TextRead == "да" || TextRead == "Да" || TextRead == "lf")
@@ -101,6 +103,7 @@ namespace SpamFilterApp
                     if (TextRead1 == "нет" || TextRead == "Нет" || TextRead == "ytn")
                     {
                         Console.WriteLine("Ну ладно");
+                        Console.ReadKey(true);
                         return;
                     }
 
@@ -112,7 +115,7 @@ namespace SpamFilterApp
                     string downloadString1 = client1.DownloadString(apiURL1 + "/" + model1 + "/" + word1 + "/api/" + format1 + "/");
 
                     Console.WriteLine("Запрашиваем с - " + apiURL1 + "/" + model1 + "/" + word1 + "/api/json/");
-                    Console.WriteLine("Ищем синонимы слова - " + word1 + "!" + '\n' + "Слова получаются такие:");
+                    Console.WriteLine("Ищем синонимы слова - " + word1 + "!");
                     //Console.WriteLine("Слова получается у нас такие - " + downloadString1);
 
                     List<String> words = new List<String>();
@@ -120,19 +123,20 @@ namespace SpamFilterApp
                     MatchCollection matches = rx.Matches(downloadString1);
                     
                     foreach (Match match in matches)
+                    {
                         words.Add(match.Groups[1].Value);
+                    }
 
+                    Console.WriteLine("Слова получаются такие: ");
                     foreach (String w in words)
-
+                    {
+                        Console.WriteLine("{0}", w);
+                    }
                     if (words.Count == 0)
                     {
-                        Console.WriteLine("Синонимов нет");
+                        Console.WriteLine("Синонимов, к сожалению, не найденно.");
                     }
-                    else
-                    { 
-                        Console.WriteLine("{0}", w);
-                    } 
-                }
+                }   
             }
             Console.ReadKey(true);
         }
