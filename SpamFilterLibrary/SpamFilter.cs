@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace SpamFilterLibrary
@@ -26,26 +27,20 @@ namespace SpamFilterLibrary
 				get => ( Math.Abs( ( Spam - Ham ) ) / ( Spam + Ham ) ) <= SpamFilter._Significance;
 			}
 		}
-
-		public List<string> _TransparentList = new List<string>() 
-		{ "купон", "промокод", "скидка", "акция","подборка", "новинка", "кэшбэк", "интернет-магазин", "копить", "путешествие", 
-			"новинка", "ссылка", "бренд", "выгодно", "бесплатно", "история", "праздник", "хиты", "Знакомьтесь", "обменивай", "подарок", "узнай больше", "подробнее", "образ", "идея", "дарим", 
-			"путешествие", "возвращаем", "друг", "клиент", "распродажа", "код", "оформите", "лото", "джекпот", "победитель", "сэкономьте", "бюджет", "покупатель", "выгодно", "подпишитесь", 
-			"специальная цена", "на сайте", "Оформите кредит", "кредит", "приз", "аренда", "продажа", "ограничено", "лучшие товары", "Узнайте в новинках", "Избранные товары", "мир скидок",
-			"Успейте купить", "в наличии", "вналичии", "ПЕРВЫЙ ЗАКАЗ", "Спешите купить", "СУПЕРАКЦИИ", "бонус", "Акция дня", "выгода", "кешбэк", "экономь", "штраф", "выгодные цены",
-			"последний день", "Дни выгоды", "Подробнее по сссылке", "курорт", "мультимиллионер", "Спортлото", "приглашаем", "отзыв"};
+		static readonly string Exception = @"Data\Exception_words.txt";
+		public List<string> _TransparentList = File.ReadAllLines(Exception).ToList();
 		
+		static readonly string SpamWords = @"Data\2.txt";
+		public List<string> _SpamWordsList = File.ReadAllLines(SpamWords).ToList();
+
 		private Dictionary<string, BaseFact> _BaseFacts = new Dictionary<string, BaseFact>( );
 
 		private string[ ] Message2Words ( string Message )
 		{
 			string szMessage = Message.ToLower( );
 			List<char> oPunctuations = szMessage.Where( Char.IsPunctuation ).Distinct( ).ToList( );
-
 			oPunctuations.AddRange( new char[ ] { ' ', '<', '>' } );
-
 			string[ ] oWords = szMessage.Split( oPunctuations.ToArray( ) ).Where( szWord => szWord.Length > 2 ).ToArray( );
-
 			return oWords.Except( _TransparentList ).ToArray( );
 		}
 
@@ -63,13 +58,10 @@ namespace SpamFilterLibrary
 			foreach ( string szWord in szList )
 			{
 				BaseFact oValue = _BaseFacts.ContainsKey( szWord ) ? _BaseFacts[szWord] : new BaseFact( );
-
 				nTemp = (Type == MessageType.Spam) ? oValue.Spam++ : oValue.Ham++;
-
 				_BaseFacts[szWord] = oValue;
 			}
 		}
-
 		public MessageType Classify ( string Message )
 		{
 			string[ ] szList = Message2Words( Message );
